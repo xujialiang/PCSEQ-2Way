@@ -18,6 +18,8 @@
 {
     NSTimer* timer;
     NSArray* barArray;
+    NSArray* barReflectionArray;
+    int height;
 }
 - (id)initWithNumberOfBars:(int)numberOfBars
 {
@@ -30,7 +32,7 @@
         
         for(int i=0;i<numberOfBars;i++){
             
-            UIImageView* bar = [[UIImageView alloc]initWithFrame:CGRectMake(i*kWidth+i*kPadding, 0, kWidth, 1)];
+            UIImageView* bar = [[UIImageView alloc]initWithFrame:CGRectMake(i*kWidth+i*kPadding, kHeight/2, kWidth, 1)];
             bar.image = [UIImage imageWithColor:self.barColor];
             [self addSubview:bar];
             [tempBarArray addObject:bar];
@@ -38,6 +40,20 @@
         }
 
         barArray = [[NSArray alloc]initWithArray:tempBarArray];
+        
+        NSMutableArray* tempBarReflectionArray = [[NSMutableArray alloc]initWithCapacity:numberOfBars];
+        
+        for(int i=0;i<numberOfBars;i++){
+            
+            UIImageView* barref = [[UIImageView alloc]initWithFrame:CGRectMake(i*kWidth+i*kPadding, kHeight/2, kWidth, 1)];
+            barref.image = [UIImage imageWithColor:self.barColor];
+            [self addSubview:barref];
+            [tempBarReflectionArray addObject:barref];
+            
+        }
+        
+        barReflectionArray = [[NSArray alloc]initWithArray:tempBarReflectionArray];
+        
         
         CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2*2);
         self.transform = transform;
@@ -64,16 +80,28 @@
     
 }
 
+-(void)updateHeight:(int)ht{
+    height=ht;
+}
+
 -(void)ticker{
 
     [UIView animateWithDuration:.35 animations:^{
         
-        for(UIImageView* bar in barArray){
+        for (int i=0; i<barArray.count; i++) {
+            UIImageView* bar=barArray[i];
+            UIImageView* barReflection=barReflectionArray[i];
+            
+            double tmpheight=arc4random() % kHeight/2 + 1;
             
             CGRect rect = bar.frame;
-            rect.size.height = arc4random() % kHeight + 1;
+            rect.size.height = tmpheight;
             bar.frame = rect;
             
+            CGRect rectReflect = barReflection.frame;
+            rectReflect.size.height = tmpheight;
+            rectReflect.origin=CGPointMake(rectReflect.origin.x, bar.frame.origin.y-tmpheight);
+            barReflection.frame = rectReflect;
             
         }
     
